@@ -113,12 +113,12 @@ def rootDir():
     )
 
 
-@app.get("/students")
+@app.get("/students", response_model=list[Student])
 def list_students():
     return student_data
 
 
-@app.get("/students/{student_id}")
+@app.get("/students/{student_id}", response_model=Student)
 def get_student(
     student_id: int = Path(
         ...,
