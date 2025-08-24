@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Path
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, computed_field
 
@@ -99,7 +99,7 @@ class StudentUpdate(BaseModel):
             examples=["John Smith", "Joseph Killings"],
         ),
     ] = None
-    age: Annotated[int | None, Field(..., gt=18)] = None
+    age: Annotated[int | None, Field(gt=18)] = None
     courses: list[Course] | None = None
 
 
@@ -111,3 +111,23 @@ def rootDir():
     return JSONResponse(
         status_code=200, content={"success": "server is working and is loaded"}
     )
+
+
+@app.get("/students")
+def list_students():
+    return student_data
+
+
+@app.get("/students/{student_id}")
+def get_student(
+    student_id: int = Path(
+        ...,
+        description="The id of the student you want to retieve",
+        ge=1,
+        example=21,
+    ),
+):
+    for student in student_data:
+        if student["id"] == student_id:
+            return student
+    raise HTTPException(status_code=404, detail="Student not found")
